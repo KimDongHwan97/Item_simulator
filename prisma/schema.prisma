@@ -9,30 +9,53 @@ datasource db {
 }
 
 
-model Character {
-  characterId   Int     @id @default(autoincrement()) @map("characterId")
-  characterName String  @unique @map("characterName")
+model Characters {
+  charactersId   Int     @id @default(autoincrement()) @map("charactersId")
+  charactersName String  @unique @map("charactersName")
+  info          String? @map("info") @db.Text
+  
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+  
+  inventory   Inventory[] 
+
+  @@map("Characters")
+}
+
+model Item {
+  itemId        Int     @id @default(autoincrement()) @map("itemId")  
+  inventoryId   Int?     @map("inventoryId")
+  itemName      String  @map("itemName")
+  price         Int     @default(1000) @map("price")
+  info          String? @map("info") @db.Text
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+  
+  inventory Inventory? @relation(fields: [inventoryId], references: [inventoryId], onDelete: Cascade)
+
+  @@map("Item")
+}
+
+
+model Inventory {
+  inventoryId   Int     @id @default(autoincrement()) @map("inventoryId")  
+  charactersId   Int     @unique @map("characterId")
+  inventoryName String  @map("inventoryName")
   info          String? @map("info") @db.Text
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  item    Item[]
+  character Characters @relation(fields: [charactersId], references: [charactersId], onDelete: Cascade)
+  
+  item Item[]
 
-  @@map("Character")
+  @@map("Inventory")
 }
 
-model Item {
-  itemId   Int     @id @default(autoincrement()) @map("itemId")  
-  itemName String  @map("itemName")
-  price    Int     @default(1000) @map("price")
-  info     String? @map("info") @db.Text
 
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @updatedAt @map("updatedAt")
 
-  character Character @relation(fields: [characterId], references: [characterId], onDelete: Cascade)
-  characterId  Int 
-  @@map("Item")
-}
-
+  // character Character @relation(fields: [characterId], references: [characterId], onDelete: Cascade)
+  // characterId  Int 
+  // @@map("Item")
